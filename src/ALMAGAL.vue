@@ -2026,15 +2026,16 @@ and remember, position:absolute is still a positioned parent, so children can be
 // rather than competing with it.
 .clump-type-header {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1em;
+  align-items: center;
+  // justify-content: space-between;
+  gap: 0.5em;
   font-size: var(--panel-font-body);
   padding-bottom: 0.75em;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--panel-accent2);
+  margin-bottom: 0.25em;
 }
 
 .clump-type-actions {
@@ -2045,6 +2046,7 @@ and remember, position:absolute is still a positioned parent, so children can be
   text-transform: none;
   letter-spacing: normal;
   color: var(--panel-accent);
+  margin-left: auto;
 }
 
 .clump-type-actions > button {
