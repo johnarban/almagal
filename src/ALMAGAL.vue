@@ -170,10 +170,51 @@
             </div>
           </div>
           <div id="right-buttons">
+            <!-- zoom control -->
+            <div
+              v-if="!in3dView"
+              class="zoom-control pointer-events-auto"
+            >
+              <v-btn
+                class="zoom-increase"
+                density="compact"
+                variant="text"
+                icon="mdi-plus-box"
+                color="surface-variant"
+                aria-label="Zoom in"
+                @click="setZoom(store.zoomDeg / 1.25)"
+                @keyup.enter="setZoom(store.zoomDeg / 1.25)"
+              />
+              <div class="zoom-slider">
+                <v-slider
+                  :model-value="store.zoomDeg"
+                  :max="0.00130"
+                  :min="360"
+                  :step="-0.01"
+                  hide-details
+                  density="compact"
+                  direction="vertical"
+                  aria-label="Zoom level"
+                  @update:model-value="setZoom"
+                />
+              </div>
+              <v-btn
+                class="zoom-decrease"
+                density="compact"
+                variant="text"
+                icon="mdi-minus-box"
+                color="surface-variant"
+                aria-label="Zoom out"
+                @click="setZoom(store.zoomDeg * 1.25)"
+                @keyup.enter="setZoom(store.zoomDeg * 1.25)"
+              />
+            </div>
+            
             <div class="d-flex flex-row flex-wrap ga-4 pa-2 bunch-o-buttons">
             </div>
 
-            <template v-if="!showTour">
+            <!-- TODO: remove this once we have the full 17 level tile-set -->
+            <template v-if="false">
               <v-btn
                 v-if="showAllInView && !in3dView"
                 class="blur-button"
@@ -1143,6 +1184,9 @@ function createSunLayer() {
   });
 }
 
+import { useWwtZoom} from './composables/useZoomControl';
+const { setZoom} = useWwtZoom();
+
 const sunLayer = ref<SpreadSheetLayer | null>(null);
 onMounted(() => {
   // boiler plate to disable WWT and let warning be
@@ -1156,9 +1200,12 @@ onMounted(() => {
     WWTControl.singleton.renderOneFrame = function() {};
     return;
   }
+  
 
 
   store.waitForReady().then(async () => {
+    console.log("WWT engine ready, setting up initial view");
+    console.log(WWTControl.singleton);
 
     // keeping it in RA/Dec for convenience. Easier to check if point are in view and to go to a matching 3D view
     store.applySetting(["galacticMode", true]); /* moves might be wierd, but convenient coord sys */
@@ -2359,5 +2406,14 @@ and remember, position:absolute is still a positioned parent, so children can be
   padding: 3px 9px;
   margin-right: 12px;
   cursor: pointer;
+}
+
+
+
+/* zoom control */
+.zoom-control {
+  background-color: rgba(0, 0, 0, 0.364);
+  backdrop-filter: blur(2px);
+  border-radius: 5px;
 }
 </style>
