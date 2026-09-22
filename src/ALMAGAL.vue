@@ -1454,12 +1454,12 @@ watch(() => almagalWtmlState.value ? almagalWtmlState.value.settings.opacity : n
 <style lang="less">
 @font-face {
   font-family: "Highway Gothic Narrow";
-  src: url("../assets/HighwayGothicNarrow.ttf") format("truetype");
+  src: url("./assets/HighwayGothicNarrow.ttf") format("truetype");
 }
 
 @font-face {
   font-family: "Segoe UI Semibold";
-  src: url("../assets/Segoe UI Semibold.ttf") format("truetype");
+  src: url("./assets/Segoe UI Semibold.ttf") format("truetype");
   font-weight: 600;
 }
 
