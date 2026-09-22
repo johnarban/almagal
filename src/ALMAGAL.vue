@@ -1339,7 +1339,7 @@ const filterFieldLabels: Record<FilterField, string> = {
   tdust: "Dust Temp. (K)",
   // eslint-disable-next-line @typescript-eslint/naming-convention
   "dist_ag": "Distance (pc)",
-  tbol: "Bol. Temp. (K)",
+  // tbol: "Bol. Temp. (K)",
 };
 
 const  _filterFieldUnits: Record<FilterField, string> = {
@@ -1349,7 +1349,7 @@ const  _filterFieldUnits: Record<FilterField, string> = {
   tdust: "K",
   // eslint-disable-next-line @typescript-eslint/naming-convention
   "dist_ag": "pc",
-  tbol: "K",
+  // tbol: "K",
 };
 
 // the filter function closes over a reactive, so this function changes as the filter spec changes.
