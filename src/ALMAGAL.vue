@@ -49,6 +49,7 @@
         :wwt-namespace="wwtNamespace"
         @pointermove="almagalSpreadsheetLayer.onPointerMove"
         @click="almagalSpreadsheetLayer.onPointerClick"
+        @dblclick.stop="almagalSpreadsheetLayer.onPointerDoubleClick"
       ></WorldWideTelescope>
       <wwt-loader v-model="isLoading" />
 
@@ -719,6 +720,10 @@ import {
   type InfoSheetTab,
 } from "./almagal_state";
 
+import {
+  goToSource,
+} from "@/tour/tourActions";
+
 import { useWtmlLoader } from "./composables/useWtmlLoader";
 import { useHoverableSpreadsheetLayer } from "./composables/useHoverableSpreadsheetLayer";
 import { useSourcesInView } from "./composables/useSourcesInView";
@@ -883,6 +888,29 @@ const almagalSpreadsheetLayer = useHoverableSpreadsheetLayer(
     onClick: (row) => {
       if (spreadsheetVisible.value) {
         selectedAlmagalSource.value = row as ALMAGalSource;
+        if (row && !in3dView.value) {
+          store.gotoRADecZoom({
+            raRad: row.ra * D2R,
+            decRad: row.dec * D2R,
+            zoomDeg: store.zoomDeg, // just go without zooming
+            rollRad: 0,
+            instant: false,
+          });
+        }
+      }
+    },
+    onDoubleClick: (row) => {
+      if (spreadsheetVisible.value) {
+        selectedAlmagalSource.value = row as ALMAGalSource;
+        if (row && !in3dView.value) {
+          store.gotoRADecZoom({
+            raRad: row.ra * D2R,
+            decRad: row.dec * D2R,
+            zoomDeg: 0.1,
+            rollRad: 0,
+            instant: false,
+          });
+        }
       }
     },
   }
@@ -1286,15 +1314,15 @@ watch(clumpTypeFilter, () => almagalSpreadsheetLayer.applyFilter(), { deep: true
 
 
 watch(selectedAlmagalSource, (newSource) => {
-  if (newSource && !in3dView.value) {
-    store.gotoRADecZoom({
-      raRad: newSource.ra * D2R,
-      decRad: newSource.dec * D2R,
-      zoomDeg: store.zoomDeg, // just go without zooming
-      rollRad: 0,
-      instant: false,
-    });
-  }
+  // if (newSource && !in3dView.value) {
+  //   store.gotoRADecZoom({
+  //     raRad: newSource.ra * D2R,
+  //     decRad: newSource.dec * D2R,
+  //     zoomDeg: store.zoomDeg, // just go without zooming
+  //     rollRad: 0,
+  //     instant: false,
+  //   });
+  // }
   // picking a clump means the ALMAGAL blurb is not what is wanted
   if (newSource && infoSheetTab.value === ALMAGAL_TAB) {
     infoSheetTab.value = SOURCE_INFORMATION_TAB;
