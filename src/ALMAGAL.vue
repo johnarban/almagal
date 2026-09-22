@@ -182,20 +182,20 @@
                 icon="mdi-plus-box"
                 color="surface-variant"
                 aria-label="Zoom in"
-                @click="setZoom(store.zoomDeg / 1.25)"
-                @keyup.enter="setZoom(store.zoomDeg / 1.25)"
+                @click="zoomIn"
+                @keyup.enter="zoomIn"
               />
               <div class="zoom-slider">
                 <v-slider
-                  :model-value="store.zoomDeg"
-                  :max="0.00130"
-                  :min="360"
-                  :step="-0.01"
+                  :model-value="zoomSliderValue"
+                  :max="0"
+                  :min="1"
+                  :step="-0.001"
                   hide-details
                   density="compact"
                   direction="vertical"
                   aria-label="Zoom level"
-                  @update:model-value="setZoom"
+                  @update:model-value="onZoomSlider"
                 />
               </div>
               <v-btn
@@ -205,8 +205,8 @@
                 icon="mdi-minus-box"
                 color="surface-variant"
                 aria-label="Zoom out"
-                @click="setZoom(store.zoomDeg * 1.25)"
-                @keyup.enter="setZoom(store.zoomDeg * 1.25)"
+                @click="zoomOut"
+                @keyup.enter="zoomOut"
               />
             </div>
             
@@ -1184,8 +1184,8 @@ function createSunLayer() {
   });
 }
 
-import { useWwtZoom} from './composables/useZoomControl';
-const { setZoom} = useWwtZoom();
+import { useScaledZoom } from './composables/useScaledZoom';
+const { zoomSliderValue, onZoomSlider, zoomIn, zoomOut } = useScaledZoom();
 
 const sunLayer = ref<SpreadSheetLayer | null>(null);
 onMounted(() => {

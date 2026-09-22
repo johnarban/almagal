@@ -16,7 +16,7 @@ export function useWwtZoom() {
   function setZoom(zoom: number) {
     zoom = clampZoom(zoom);
     const rc = WWTControl.singleton.renderContext;
-    rc.targetCamera.zoom = zoom;
+    rc.targetCamera.zoom = zoom; 
     // rc.viewCamera.zoom   = zoom; // i think this was to get an instant effect, but won't do this for now
     WWTControl.singleton.renderOneFrame();
   }
