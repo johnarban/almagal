@@ -67,7 +67,7 @@ export interface AlmaGalSourceFilterRange { max: number | null; min: number | nu
 export type AlmaGalSourceFilterSpec = Map<keyof ALMAGalSource, AlmaGalSourceFilterRange>;
 
 // Numeric source fields exposed as range-filter sliders. Edit this list to add or remove sliders.
-export const filterFields = ["mass", "lum", "lm", "tdust", "dist_ag", "tbol"] as const;
+export const filterFields = ["lum", "mass", "lm", "tdust", "dist_ag"] as const;
 export type FilterField = typeof filterFields[number];
 
 // separate filter for clump type, since it is categorical not numeric
