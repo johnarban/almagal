@@ -387,7 +387,21 @@
                 <v-expansion-panel-text>
                   <div class="clump-type-filter">
                     <div class="clump-type-header">
-                      <span>Clump type</span>
+                      <span>Clump type</span><InfoButton
+                        :show-tooltip="true"
+                        :tooltip-text="'Filter the sources by their clump type'"
+                      >
+                        <div class="info-button-text">
+                          The clump type tells you how complex a source's shape is,
+                          which is related to it's evolutionary stage. We have several classifications
+                          <ul>
+                            <li><b>Empty</b> - no clump detected</li>
+                            <li><b>Isolated</b> - Individual disconnected clumps</li>
+                            <li><b>Simple</b> - A few connected clumps</li>
+                            <li><b>Rich</b> - larger clumps which themselves may contain other "simple" or "rich" strucutres</li>
+                          </ul>
+                        </div>
+                      </InfoButton>
                       <span class="clump-type-actions">
                         <button
                           type="button"
@@ -440,11 +454,16 @@
                       class="filter-slider"
                     >
                       <div class="filter-slider-and-label">
-                        <div class="d-flex justify-between">
+                        <div class="d-flex justify-space-between">
                           <!-- The hovered source's value is no longer read out
                                here: RangeNumberInputs shows it as a callout
                                over that source's marker on the track. -->
                           <span v-html="filterFieldLabels[field]"></span>
+                          <InfoButton
+                            :help-text="filterFieldLabels[field]"
+                            :show-tooltip="true"
+                            :tooltip-text="`What is ${filterFieldLabels[field]}?`"
+                          />
                         </div>
                         <RangeNumberInputs
                           :model-value="filterSpec.get(field)!"
@@ -729,6 +748,7 @@ import ImagesetColormap from "./components/imageset_settings/ImagesetColormap.vu
 import ImagesetStretch from "./components/imageset_settings/ImagesetStretch.vue";
 import AlmagalInfoPage from "./components/AlmagalInfoPage.vue";
 import TwoLevelExpansionPanelTitle from "./components/TwoLevelExpansionPanelTitle.vue";
+import InfoButton from "./components/InfoButton.vue";
 /* Catalog, filters and view flags shared with the tour; see almagal_state.ts */
 import {
   CLUMP_TYPES,
@@ -2415,5 +2435,11 @@ and remember, position:absolute is still a positioned parent, so children can be
   background-color: rgba(0, 0, 0, 0.364);
   backdrop-filter: blur(2px);
   border-radius: 5px;
+}
+
+.info-button-text {
+  ul {
+    padding-left: 1.5em;
+  }
 }
 </style>
