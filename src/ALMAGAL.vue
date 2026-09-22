@@ -536,6 +536,15 @@
                         />
                       </template>
                     </ImagesetColormap>
+                    <v-btn
+                      v-for="layer in almagalWtml.imagesetLayers"
+                      :key="layer.id.toString()"
+                      variant="outlined"
+                      @click="() => resetFitsImagesetSettings(layer)"
+                      @keyup.enter="() => resetFitsImagesetSettings(layer)"
+                    >
+                      Reset
+                    </v-btn>
                   </div>
                 </v-expansion-panel-text>
               </v-expansion-panel>
@@ -772,6 +781,7 @@ import {
   showFilters,
   showInfoSheet,
   spreadsheetVisible,
+  resetFitsImagesetSettings,
   displaySpreadsheet,
   ALMAGAL_TAB,
   SETTINGS_TAB,

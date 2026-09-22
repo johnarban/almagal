@@ -269,3 +269,7 @@ export function cancelAlmagalSourceDownload(iid: ALMAGalSource["iid"]) {
   const idx = pendingSourceIids.value.indexOf(iid);
   if (idx !== -1) pendingSourceIids.value.splice(idx, 1);
 }
+
+export function resetFitsImagesetSettings(layer: ImageSetLayer) {
+  setFitsLayerSettings(layer.id.toString(), engineStore(), FITS_LAYER_SETTINGS_RESET);
+}
