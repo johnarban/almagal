@@ -67,6 +67,8 @@ export interface AlmaGalSourceFilterRange { max: number | null; min: number | nu
 export type AlmaGalSourceFilterSpec = Map<keyof ALMAGalSource, AlmaGalSourceFilterRange>;
 
 // Numeric source fields exposed as range-filter sliders. Edit this list to add or remove sliders.
+// about tbol - it is a rough evolution indicator, like L/M - maybe a "pro" thing. log(Tbol) is linearly corelated with log(L/M). 
+// it should be included in a pro view
 export const filterFields = ["lum", "mass", "lm", "tdust", "dist_ag"] as const;
 export type FilterField = typeof filterFields[number];
 
