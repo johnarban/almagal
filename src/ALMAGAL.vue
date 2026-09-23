@@ -1514,11 +1514,7 @@ watch(() => almagalWtmlState.value ? almagalWtmlState.value.settings.opacity : n
   overflow-y: auto;
   padding: 1em 1.25em;
   color: #e6e6e6;
-  // background-color: var(--almagal-blue-darker);
-  background-color: rgba(0, 47, 92, 0.9);
-  
-
-
+  background-color: var(--almagal-blue-darker);
 }
 
 /* Teleported into #bottom-content, so it is an ordinary flex item in the
@@ -1937,6 +1933,8 @@ and remember, position:absolute is still a positioned parent, so children can be
   --panel-font-title: 1.1rem;     
   --panel-font-body: 0.95rem;        
   --panel-font-small: 0.75rem;    
+  
+  --tour-sheet-background: var(--almagal-blue-darkest);
 }
 
 // Anchors the close button against a title instead of leaving it floating.
@@ -1984,7 +1982,7 @@ and remember, position:absolute is still a positioned parent, so children can be
   // max-height: 50%;
   overflow-y: auto;
   color: #e6e6e6;
-  background-color: rgba(0, 47, 92, 0.9);
+  background-color: var(--tour-sheet-background);
   border-radius: 5px;
 }
 
@@ -1995,6 +1993,7 @@ and remember, position:absolute is still a positioned parent, so children can be
 
   > .tour-sheet {
     min-width: 0;
+    flex-shrink: 1;
   }
 
   > .controls-sheet {
