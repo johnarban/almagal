@@ -1053,9 +1053,15 @@ onMounted(() => {
     skyBackgroundImagesets.forEach(iset => backgroundImagesets.push(iset));
     console.log("WWT engine ready, background imagesets:", backgroundImagesets);
     // get the Hipparcos catalog to start loading
-    store.setBackgroundImageByName("Solar System");
-    await new Promise(resolve => setTimeout(resolve, 350)); // 250 - 500ms is about long enough to wait for Hipparcos to load so later swtich is quicker
-    store.setBackgroundImageByName('GAIA DR2'); // look at the Imagery list on the WWT page to see a list of background names
+    /* Deliberately not awaited: the pause below only exists to give Hipparcos a
+       head start, and nothing after it depends on the background imagery being
+       settled. Awaiting it would put 350ms of dead time in front of the layer
+       loading that the splash screen's buttons are waiting on. */
+    (async () => {
+      store.setBackgroundImageByName("Solar System");
+      await new Promise(resolve => setTimeout(resolve, 350)); // 250 - 500ms is about long enough to wait for Hipparcos to load so later swtich is quicker
+      store.setBackgroundImageByName('GAIA DR2'); // look at the Imagery list on the WWT page to see a list of background names
+    })();
     WWTControl.singleton.setSolarSystemMinZoom(15000 * 9 / 4);  // min zoom for showing the solar system.
 
     // wait for spreadhseet to load
@@ -1281,17 +1287,6 @@ watch(() => almagalWtmlState.value ? almagalWtmlState.value.settings.opacity : n
 </script>
 
 <style lang="less">
-@font-face {
-  font-family: "Highway Gothic Narrow";
-  src: url("./assets/HighwayGothicNarrow.ttf") format("truetype");
-}
-
-@font-face {
-  font-family: "Segoe UI Semibold";
-  src: url("./assets/Segoe UI Semibold.ttf") format("truetype");
-  font-weight: 600;
-}
-
 
 // #app is a column flex container with two children:
 // #main-content and #bottom-drawer.
