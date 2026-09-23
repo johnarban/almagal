@@ -40,10 +40,11 @@
             />
             <TourPlayer @step="tourStep = $event" />
           </div>
-          <!-- the tour talks about the filters and nothing else -->
+          <!-- the tour talks about the filters and the image controls are relevant -->
           <div v-if="controlsInTourSheet" class="controls-sheet">
             <ControlPanel
-              hide-almagal-images
+              :almagal-wtml="almagalWtml"
+              :hide-almagal-images="tourStep !== 6"
               hide-background-surveys
               hide-comparison-images
             />
@@ -120,11 +121,13 @@
                       :items="almagalSourceList"
                       item-title="iid"
                       item-value="iid"
+                      :custom-filter="filterAlmagalSource"
                       return-object
                       hide-details
                       label="ALMAGAL Source"
                       :loading="pendingSourceIids.length > 0"
                       density="compact"
+                      @update:model-value="onSourceSearchSelect"
                     />
                   </template>
                 </div>
@@ -205,6 +208,7 @@
                   :max="0"
                   :min="1"
                   :step="-0.001"
+                  thumb-label="hover"
                   hide-details
                   density="compact"
                   direction="vertical"
@@ -245,11 +249,12 @@
                 Zoom in to download full images
               </div> -->
             </template>
+            <!-- 
             <div
               v-if="(almagalSourceLayers.size > 0 || pendingSourceIids.length > 0 || selectedAlmagalSource) && !in3dView && !showTour"
               class="layer-list"
             >
-              <!-- need to keep these so we can navigate to ones we have downloaded-->
+
               <div
                 v-for="layer in [...almagalSourceLayers.values()]"
                 :key="layer.id.toString()"
@@ -276,7 +281,7 @@
                 @download="downloadAlmagalSource"
                 @cancel="cancelAlmagalSourceDownload"
               />
-              <!-- the selected clump, so its image can be fetched on demand -->
+
               <DownloadAlmagal
                 v-if="selectedAlmagalSource
                   && !pendingSourceIids.includes(selectedAlmagalSource.iid)
@@ -287,6 +292,7 @@
                 @cancel="cancelAlmagalSourceDownload"
               />
             </div>
+            -->
           </div>
         </div>
 
@@ -299,7 +305,61 @@
                  and zero-width for the other two layouts. -->
             <div id="tour-float-slot"></div>
             <div class="control-bar">
-              <div class="hovered-source-info">
+              <!-- the tour borrows this spot for its own buttons -->
+              <div v-if="showTour" class="tour-actions">
+                <template v-if="tourStep === 2">
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    :active="activeOrionImageset === ORION.hubble"
+                    :color="activeOrionImageset === ORION.hubble ? almagalOrange : tourBtnProps.color"
+                    @click="showOrionImageset(ORION.hubble)"
+                  >
+                    Hubble
+                  </v-btn>
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    :active="activeOrionImageset === ORION.spitzer"
+                    :color="activeOrionImageset === ORION.spitzer ? almagalOrange : tourBtnProps.color"
+                    @click="showOrionImageset(ORION.spitzer)"
+                  >
+                    Spitzer
+                  </v-btn>
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    :active="activeOrionImageset === ORION.wise"
+                    :color="activeOrionImageset === ORION.wise ? almagalOrange : tourBtnProps.color"
+                    @click="showOrionImageset(ORION.wise)"
+                  >
+                    WISE
+                  </v-btn>
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    prepend-icon="mdi-target"
+                    @click="goToImageset(orion(), ORION.hubble, { zoom: 3, instant: false })"
+                  >
+                    Recentre
+                  </v-btn>
+                </template>
+                <template v-else-if="tourStep === 4">
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    :active="foregroundImage === 'none'"
+                    :color="foregroundImage === 'none' ? almagalOrange : tourBtnProps.color"
+                    @click="showBackground('none')"
+                  >
+                    Visible light
+                  </v-btn>
+                  <v-btn
+                    v-bind="tourBtnProps"
+                    :active="foregroundImage === 'herschel'"
+                    :color="foregroundImage === 'herschel' ? almagalOrange : tourBtnProps.color"
+                    @click="showBackground('herschel')"
+                  >
+                    Far-infrared
+                  </v-btn>
+                </template>
+              </div>
+              <div v-else class="hovered-source-info">
                 <span v-if="hoveredSource">Currently hovering: {{ hoveredSource.aid }}</span>
                 <span v-else-if="selectedAlmagalSource">Last selected: {{ selectedAlmagalSource.aid }}</span>
                 <span v-else>Currently hovering: none</span>
@@ -490,13 +550,16 @@ import {
 
 import {
   goToSource,
+  ORION,
+  orion,
+  showBackground,
 } from "@/tour/tourActions";
 
 import { useAppLayout } from "./composables/useAppLayout";
 import { useWtmlLoader } from "./composables/useWtmlLoader";
 import { useHoverableSpreadsheetLayer } from "./composables/useHoverableSpreadsheetLayer";
 import { useSourcesInView } from "./composables/useSourcesInView";
-import { moveToImageset, setFitsLayerSettings } from "./wwt-helpers";
+import { goToImageset, moveToImageset, setFitsLayerSettings, showImagesets } from "./wwt-helpers";
 
 import {
   type ALMAGalSource
@@ -609,6 +672,18 @@ const tourDrawerLayout = computed<"bottom" | "push" | "float">(() => {
 const tourDrawerWidth = computed(() => tourDrawerLayout.value === "push" ? "34%" : "50%");
 
 const tourStep = ref(1);
+// which Orion imageset the canvas buttons show as selected; steps 1 and 2
+// both open on Hubble (tourActions.ts, setupTourStep)
+const activeOrionImageset = ref(ORION.hubble);
+watch(tourStep, (n) => {
+  if (n === 1 || n === 2) activeOrionImageset.value = ORION.hubble;
+});
+function showOrionImageset(index: number) {
+  showImagesets(orion(), index);
+  activeOrionImageset.value = index;
+}
+// shared look for the tour's canvas buttons
+const tourBtnProps = { color: "surface-variant" };
 // the steps that discuss the filters
 const CONTROL_PANEL_STEPS = [5, 6, 7, 8];
 const tourWantsControls = computed(() =>
@@ -643,6 +718,25 @@ watch([controlsInInfoSheet, tourStep], ([inSheet]) => {
   showInfoSheet.value = inSheet;
 });
 const showSearch = ref(false);
+// match on aid, iid or orig_id -- whichever the user happens to have on hand
+function filterAlmagalSource(_title: string, query: string, item?: { raw: ALMAGalSource }) {
+  const q = query.trim().toLowerCase();
+  if (!q || !item) return true;
+  const source = item.raw;
+  return [source.iid, source.aid, source.orig_id].some(field => field.toLowerCase().includes(q));
+}
+
+function onSourceSearchSelect(source: ALMAGalSource | null) {
+  if (source && !in3dView.value) {
+    store.gotoRADecZoom({
+      raRad: source.ra * D2R,
+      decRad: source.dec * D2R,
+      zoomDeg: 0.4, // just go without zooming
+      rollRad: 0,
+      instant: false,
+    });
+  }
+}
 const queryShowSplash = searchParams.get("splash")?.toLowerCase() !== 'false';
 const showSplashScreen = ref(queryShowSplash);
 const layersLoaded = ref(false);
@@ -1668,6 +1762,15 @@ and remember, position:absolute is still a positioned parent, so children can be
   pointer-events: auto;
   border-radius: 4px;
   min-width: 250px;
+}
+
+// the overlay is pointer-events: none, so these have to opt back in
+.tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5em;
+  pointer-events: auto;
 }
 
 .hovered-source-info {
