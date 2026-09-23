@@ -177,7 +177,7 @@ export function useHoverableSpreadsheetLayer<T extends RaDecPair>(
   }
   
   // https://css-tricks.com/snippets/javascript/bind-different-events-to-click-and-double-click/
-  let timer: ReturnType<typeof setTimeout> = 0;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   // there is no way to know the system double-click delay without measureing it
   // so really this is just a wait to check for a double click. 
   const DOUBLE_CLICK_DELAY = 500; 
