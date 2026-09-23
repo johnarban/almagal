@@ -562,7 +562,7 @@ import { useAppLayout } from "./composables/useAppLayout";
 import { useWtmlLoader } from "./composables/useWtmlLoader";
 import { useHoverableSpreadsheetLayer } from "./composables/useHoverableSpreadsheetLayer";
 import { useSourcesInView } from "./composables/useSourcesInView";
-import { goToImageset, moveToImageset, setFitsLayerSettings, showImagesets } from "./wwt-helpers";
+import { goToImageset, moveToImageset, setFitsLayerSettings, showImagesets, waitForLayerMaps } from "./wwt-helpers";
 
 import {
   type ALMAGalSource
@@ -1062,6 +1062,7 @@ onMounted(() => {
 
 
   store.waitForReady().then(async () => {
+    await waitForLayerMaps();
     console.log("WWT engine ready, setting up initial view");
     console.log(WWTControl.singleton);
 
