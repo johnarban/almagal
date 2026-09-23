@@ -70,18 +70,6 @@
           >
             Let me explore on my own
           </v-btn>
-          <!-- The buttons already ignore clicks until `loaded`; this says why. -->
-          <div
-            v-if="!loaded"
-            class="splash-loading"
-          >
-            <v-progress-circular
-              indeterminate
-              size="16"
-              width="2"
-            />
-            <span>Loading the sky&hellip;</span>
-          </div>
         </div>
 
         <div id="splash-screen-acknowledgements">
