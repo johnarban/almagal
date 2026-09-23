@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/naming-convention */
+ 
 import { computed } from "vue";
 import { WWTControl } from "@wwtelescope/engine";
 import { engineStore } from "@wwtelescope/engine-pinia";

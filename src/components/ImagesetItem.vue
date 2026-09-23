@@ -381,7 +381,7 @@ function handleGoto() {
 
     let zoomDeg = store.zoomDeg;
     const wcsimg = imgset.get_wcsImage();
-    // eslint-disable-next-line @typescript-eslint/naming-convention
+     
     const FOV_FACTOR = 1.7;
 
     if (imgset.get_projection() == ProjectionType.skyImage) {

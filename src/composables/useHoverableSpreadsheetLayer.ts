@@ -50,7 +50,7 @@ export function useHoverableSpreadsheetLayer<T extends RaDecPair>(
     let minDist = Infinity;
     let closestIndex = -1;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+     
     // @ts-expect-error This works
     const layer = spreadsheet.layer.value; const table = layer.get__table(); const tableRows = table.rows; const header = table.header;
 
@@ -74,7 +74,7 @@ export function useHoverableSpreadsheetLayer<T extends RaDecPair>(
     const pixelDist = Math.sqrt((pt.x - screenPoint.x) ** 2 + (pt.y - screenPoint.y) ** 2);
     if (pixelDist >= pixelThreshold) return null;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+     
     // @ts-expect-error This works
     if (!layer._filter(tableRows[closestIndex], header)) return null;
 
