@@ -23,14 +23,14 @@ import {
   type InfoSheetTab,
 } from "../almagal_state";
 
-export function flyTo(raDeg: number, decDeg: number, zoomDeg: number) {
+export function flyTo(raDeg: number, decDeg: number, zoomDeg: number, instant = false) {
   const store = engineStore();
   store.gotoRADecZoom({
     raRad: raDeg * D2R,
     decRad: decDeg * D2R,
     zoomDeg,
     rollRad: store.rollRad,
-    instant: false,
+    instant,
   });
 }
 
@@ -54,7 +54,7 @@ export function filterCatalog(field: FilterField, min: number | null, max: numbe
 }
 
 /** Fly to an ALMAGAL clump, open its panel and fetch its ALMA image. */
-export function goToSource(aid: string, vmin: number, vmax: number) {
+export function goToSource(aid: string, vmin: number, vmax: number, instant = true) {
   const source = almagalSourceList.value.find(s => s.aid === aid);
   if (!source) {
     console.warn(`tour: no ALMAGAL source named ${aid}`);
@@ -64,7 +64,7 @@ export function goToSource(aid: string, vmin: number, vmax: number) {
   selectedAlmagalSource.value = source;
   // selecting flies there but deliberately leaves the zoom alone, so set it
   // after that move has been issued. The images are about 36 arcsec across.
-  nextTick(() => flyTo(source.ra, source.dec, 0.09));
+  nextTick(() => flyTo(source.ra, source.dec, 0.09, instant));
   downloadAlmagalSource(source.iid);
 }
 
