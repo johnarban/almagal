@@ -66,10 +66,8 @@ export const almagalSourceList = shallowRef(mergedCatalog(almagalSources, almaga
 export interface AlmaGalSourceFilterRange { max: number | null; min: number | null }
 export type AlmaGalSourceFilterSpec = Map<keyof ALMAGalSource, AlmaGalSourceFilterRange>;
 
-// Numeric source fields exposed as range-filter sliders. Edit this list to add or remove sliders.
-// about tbol - it is a rough evolution indicator, like L/M - maybe a "pro" thing. log(Tbol) is linearly corelated with log(L/M). 
-// it should be included in a pro view
-export const filterFields = ["lum", "mass", "lm", "tdust", "dist_ag"] as const;
+
+export const filterFields = ["lum", "mass", "lm", "tdust", "dist_ag", "tbol"] as const;
 export type FilterField = typeof filterFields[number];
 
 // separate filter for clump type, since it is categorical not numeric
@@ -288,7 +286,7 @@ export const filterFieldLabels: Record<FilterField, string> = {
   tdust: "Dust Temp. (K)",
   // eslint-disable-next-line @typescript-eslint/naming-convention
   "dist_ag": "Distance (pc)",
-  // tbol: "Bol. Temp. (K)",
+  tbol: "Bol. Temp. (K)",
 };
 
 export const foregroundImageOptions = [

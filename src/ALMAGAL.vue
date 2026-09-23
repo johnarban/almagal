@@ -45,7 +45,7 @@
             <ControlPanel
               :almagal-wtml="almagalWtml"
               :hide-almagal-images="tourStep !== 6"
-              :disable-filters="tourDisabledFilters"
+              :disable-filters="disabledFilters"
               hide-disabled
               hide-background-surveys
               hide-comparison-images
@@ -182,6 +182,22 @@
                       color="surface-variant"
                       aria-label="Start the tour"
                       @click="showTour = !showTour"
+                    />
+                  </template>
+                </v-tooltip>
+                <v-tooltip
+                  v-if="startedInScienceMode"
+                  :text="`Switch to ${scienceMode ? 'public' : 'science'} mode`"
+                  location="bottom"
+                >
+                  <template #activator="p">
+                    <v-btn
+                      v-bind="p.props"
+                      :icon="`${scienceMode ? 'mdi-school' : 'mdi-account-group'}`"
+                      size="small"
+                      :color="`${scienceMode ? almagalOrange : 'surface-variant'}`"
+                      :aria-label="`Switch to ${scienceMode ? 'explore' : 'public'} mode`"
+                      @click="scienceMode = !scienceMode"
                     />
                   </template>
                 </v-tooltip>
@@ -456,6 +472,8 @@
             :comparison-items="comparisonItems"
             :current-comparison-description="currentComparisonDescription"
             :comparisons-items-in-view="comparisonsInView"
+            :disable-filters="disabledFilters"
+            hide-disabled
             @setup3d="setup3DView"
             @go-to-comparison="goToComparison"
             @step-comparison="stepComparison"
@@ -585,6 +603,11 @@ const kiosk = searchParams.get("kiosk")?.toLowerCase() === "true";
 if (kiosk) {
   document.body.classList.add("kiosk");
 }
+const scienceMode = ref(searchParams.get("science")?.toLowerCase() === "true");
+if (scienceMode.value) {
+  document.body.classList.add("science-mode");
+}
+const startedInScienceMode = scienceMode.value;
 
 const skipSplash = searchParams.get("splash")?.toLowerCase() === "false";
 console.log("kiosk mode?", kiosk);
@@ -686,8 +709,17 @@ const tourWantsControls = computed(() =>
 
 // step 6 (TourStep3b) only want L,M, L/M
 const TOUR_STEP_6_HIDDEN_FILTERS: FilterField[] = ["tdust", "dist_ag"];
-const tourDisabledFilters = computed<FilterField[]>(() =>
-  tourStep.value === 6 ? TOUR_STEP_6_HIDDEN_FILTERS : []);
+const SCIENCE_MODE_ONLY_FILTERS: FilterField[] = ["tbol"];
+const disabledFilters = computed<FilterField[]>(() => {
+  const disabled: FilterField[] = [];
+  if (!scienceMode.value) {
+    disabled.push(...SCIENCE_MODE_ONLY_FILTERS);
+  }
+  if (tourStep.value === 6) {
+    disabled.push(...TOUR_STEP_6_HIDDEN_FILTERS);
+  }
+  return disabled;
+});
 
 
 
@@ -1204,7 +1236,7 @@ const  _filterFieldUnits: Record<FilterField, string> = {
   tdust: "K",
   // eslint-disable-next-line @typescript-eslint/naming-convention
   "dist_ag": "pc",
-  // tbol: "K",
+  tbol: "K",
 };
 
 // the filter function closes over a reactive, so this function changes as the filter spec changes.
