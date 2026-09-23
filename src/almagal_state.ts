@@ -1,7 +1,7 @@
 /* The catalog, the filters and the view flags that both ALMAGAL.vue and the
    tour touch. Module scope rather than ALMAGAL.vue's setup, so the tour can
    just import and call them. */
-import { ref, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import { engineStore } from "@wwtelescope/engine-pinia";
 import type { ImageSetLayer, SpreadSheetLayer } from "@wwtelescope/engine";
 import { ScaleTypes } from "@wwtelescope/engine-types";
@@ -273,3 +273,37 @@ export function cancelAlmagalSourceDownload(iid: ALMAGalSource["iid"]) {
 export function resetFitsImagesetSettings(layer: ImageSetLayer) {
   setFitsLayerSettings(layer.id.toString(), engineStore(), FITS_LAYER_SETTINGS_RESET);
 }
+
+/* ------------------------------------------------------- the control panel --
+   Shared by both ControlPanels (info sheet, tour sheet), so it cannot live in
+   either one's setup. */
+
+export const hoveredSource = ref<ALMAGalSource | null>(null);
+
+// Human-readable labels for the filter sliders.
+export const filterFieldLabels: Record<FilterField, string> = {
+  mass: "Mass (M<sub>⊙</sub>)",
+  lum: "Luminosity (L<sub>⊙</sub>)",
+  lm: "Lum. / Mass (L<sub>⊙</sub>/M<sub>⊙</sub>)",
+  tdust: "Dust Temp. (K)",
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  "dist_ag": "Distance (pc)",
+  // tbol: "Bol. Temp. (K)",
+};
+
+export const foregroundImageOptions = [
+  { label: 'GLIMPSE 360', value: 'glimpse' },
+  { label: 'Herschel SPIRE (color)', value: 'herschel' },
+  { label: 'None — Gaia DR2 sky', value: 'none' },
+];
+export const foregroundImageLabel = computed(() =>
+  foregroundImageOptions.find(o => o.value === foregroundImage.value)?.label ?? '');
+
+/* Stepping through the comparison images; the loader itself stays in
+   ALMAGAL.vue. -1 means "nothing selected yet". */
+export const comparisonIndex = ref(-1);
+export const comparisonsVisible = ref(true);
+// One opacity for all of them, applied to whichever layers are being turned on.
+export const comparisonOpacity = ref(1);
+// The escape hatch from the one-at-a-time rule: every layer on at once, stacked.
+export const showAllComparisons = ref(false);
