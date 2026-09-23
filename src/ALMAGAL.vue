@@ -171,6 +171,23 @@
                 </v-tooltip>
                 <v-tooltip
                   v-if="!showTour"
+                  text="About ALMAGAL"
+                  location="bottom"
+                >
+                  <template #activator="p">
+                    <v-btn
+                      v-bind="p.props"
+                      class="almagal-logo-v-btn"
+                      icon
+                      size="small"
+                      color="surface-variant"
+                      aria-label="About ALMAGAL"
+                      @click="openAboutAlmagal"
+                    />
+                  </template>
+                </v-tooltip>
+                <v-tooltip
+                  v-if="!showTour"
                   text="tour"
                   location="bottom"
                 >
@@ -454,7 +471,7 @@
           </p>
         </InfoPage>
         
-        <InfoPage v-if="inInfoGroup" title="ALMAGAL">
+        <InfoPage v-if="infoSheetTab === ALMAGAL_TAB" title="ALMAGAL">
           <almagal-info-page />
         </InfoPage>
 
@@ -462,7 +479,7 @@
          so it can be included with wrapping it here.
          Useful for long componenets that can be easily placed in a different file.
           -->
-        <UserGuide v-if="inInfoGroup" />
+        <UserGuide v-if="infoSheetTab === USER_GUIDE_TAB" />
 
         <InfoPage v-if="controlsInInfoSheet" title="CONTROLS" value="settings">
           <ShowHideAutoToggle v-if="!showTour" v-model="displaySpreadsheet" variant="flat" />
@@ -656,6 +673,10 @@ function openSettings() {
 }
 function openUserGuide() {
   infoSheetTab.value = USER_GUIDE_TAB;
+  showInfoSheet.value = true;
+}
+function openAboutAlmagal() {
+  infoSheetTab.value = ALMAGAL_TAB;
   showInfoSheet.value = true;
 }
 function openSourceInfo() {
@@ -1987,5 +2008,11 @@ and remember, position:absolute is still a positioned parent, so children can be
 // the breadcrumbs want the width). 60ch measures ~60 characters.
 #tour-drawer.drawer-push .tour-window {
   max-width: 60ch;
+}
+
+.almagal-logo-v-btn {
+  background-image: url("/almagal-header.png");
+  background-size: cover;
+  background-position: center;
 }
 </style>
