@@ -135,7 +135,7 @@
                 </div>
 
 
-                <ShowHideAutoToggle v-if="!showTour" v-model="displaySpreadsheet" variant="flat" />
+                
                 <v-tooltip
                   v-if="!showTour"
                   text="View settings"
@@ -316,7 +316,7 @@
                     :color="activeOrionImageset === ORION.hubble ? almagalOrange : tourBtnProps.color"
                     @click="showOrionImageset(ORION.hubble)"
                   >
-                    Hubble
+                    Hubble (visible)
                   </v-btn>
                   <v-btn
                     v-bind="tourBtnProps"
@@ -324,7 +324,7 @@
                     :color="activeOrionImageset === ORION.spitzer ? almagalOrange : tourBtnProps.color"
                     @click="showOrionImageset(ORION.spitzer)"
                   >
-                    Spitzer
+                    Spitzer (hot dust)
                   </v-btn>
                   <v-btn
                     v-bind="tourBtnProps"
@@ -332,7 +332,7 @@
                     :color="activeOrionImageset === ORION.wise ? almagalOrange : tourBtnProps.color"
                     @click="showOrionImageset(ORION.wise)"
                   >
-                    WISE
+                    WISE (warm dust)
                   </v-btn>
                   <v-btn
                     v-bind="tourBtnProps"
@@ -449,6 +449,7 @@
         <UserGuide v-if="inInfoGroup" />
 
         <InfoPage v-if="controlsInInfoSheet" title="CONTROLS" value="settings">
+          <ShowHideAutoToggle v-if="!showTour" v-model="displaySpreadsheet" variant="flat" />
           <ControlPanel
             :almagal-wtml="almagalWtml"
             :foreground-image-loaded="foregroundImageLoaded"
