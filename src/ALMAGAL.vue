@@ -618,14 +618,13 @@ const props = withDefaults(defineProps<WwtPlaygroundProps>(), {
 
 const backgroundImagesets = reactive<BackgroundImageset[]>([]);
 const forceInfoSheetOpen = ref(true);
-/* `showInfoSheet`, `infoSheetTab` and the tab names live in almagal_state.ts,
-   since the tour opens and closes the sheet per step. Each info sheet
-   registers its tab when it is available in the DOM. */
-// the pages that mount together, and so show up as each other's tabs
+
+
 const infoGroupTabs: InfoSheetTab[] = [USER_GUIDE_TAB, ALMAGAL_TAB];
 const inInfoGroup = computed(() => infoGroupTabs.includes(infoSheetTab.value));
-/* The info button only appears once a clump is hovered or selected, so the
-   sheet needs its own way in for settings that have nothing to do with a clump. */
+
+// TODO: currently if the tab sheet is closed, we need to make sure we do two things
+// this seems bad
 function openSettings() {
   infoSheetTab.value = SETTINGS_TAB;
   showInfoSheet.value = true;
@@ -634,9 +633,6 @@ function openUserGuide() {
   infoSheetTab.value = USER_GUIDE_TAB;
   showInfoSheet.value = true;
 }
-/* Each page is mounted only for its own tab, so a button that opens the sheet
-   has to say which tab it means -- this one is about the clump. Still a toggle:
-   pressing it again with the clump's page already up closes the sheet. */
 function openSourceInfo() {
   if (showInfoSheet.value && infoSheetTab.value === SOURCE_INFORMATION_TAB) {
     showInfoSheet.value = false;
@@ -646,14 +642,11 @@ function openSourceInfo() {
   showInfoSheet.value = true;
 }
 
-/* Which shape the tour drawer takes is ours to decide, not the drawer's. It
-   reads `sidePanel`, which also sets the container's flex direction, so the two
-   cannot disagree. */
+
 const showTour = ref(false);
-/* The splash screen's two doors. The tour drawer mounts TourPlayer only once it
-   opens, and TourPlayer runs step 1's setup on mount -- so `showTour` is the
-   whole of "start the tour", and leaving it false is the whole of "let me
-   explore", which drops into the app with nothing set up for it. */
+
+// like why roman, we will handle starting the tour/explore modes from a function
+// in case we need to do more work
 function startTour() {
   showTour.value = true;
 }
@@ -662,18 +655,14 @@ function startExploring() {
 }
 const tourDrawerLayout = computed<"bottom" | "push" | "float">(() => {
   if (!sidePanel.value) return "bottom";
-  /* 700, not 600: 'float' shares the overlay's height with #top-content, so an
-     expanded filter panel and the tour push each other off a short screen.
-     'push' takes its room from the view's width instead, sidestepping that. */
+  // set to iewportHeight.value >= 700 ? "float" : "push"; to have the tour panel float
   return viewportHeight.value >= 700 ? "push" : "push";
 });
-/* Both are percentages of the drawer's container, which differs per layout:
-   'push' sits in .v-application__wrap and takes a third of the window, while
-   'float' now lays out inside the overlay's bottom row, so its half is half of
-   whatever the view has left once the info sheet has taken its share. */
+
 const tourDrawerWidth = computed(() => tourDrawerLayout.value === "push" ? "34%" : "50%");
 
 const tourStep = ref(1);
+
 // which Orion imageset the canvas buttons show as selected; steps 1 and 2
 // both open on Hubble (tourActions.ts, setupTourStep)
 const activeOrionImageset = ref(ORION.hubble);
@@ -684,8 +673,10 @@ function showOrionImageset(index: number) {
   showImagesets(orion(), index);
   activeOrionImageset.value = index;
 }
-// shared look for the tour's canvas buttons
+
+// shared look for the tour's on WWT buttons. can also add classes here.
 const tourBtnProps = { color: "surface-variant" };
+
 // the steps that discuss the filters
 const CONTROL_PANEL_STEPS = [6, 7, 8];
 const tourWantsControls = computed(() =>
@@ -696,22 +687,24 @@ const TOUR_STEP_6_HIDDEN_FILTERS: FilterField[] = ["tdust", "dist_ag"];
 const tourDisabledFilters = computed<FilterField[]>(() =>
   tourStep.value === 6 ? TOUR_STEP_6_HIDDEN_FILTERS : []);
 
-// below this the bottom strip cannot fit the tour and the panel side by side
-const CONTROLS_SIDE_BY_SIDE_WIDTH = 800;
 
-/* Two panels, never both up at once -- so they can share almagal_state
-   without mirroring each other. */
+
+/* 
+We want the controls to share the space with the tour, everywhere except
+on mobile and when the tour is floating. 
+*/
 const controlsInTourSheet = computed(() => {
   if (isMobile.value || !tourWantsControls.value) return false;
   // floats over the view, so it has no room to give -- the info sheet takes it
   if (tourDrawerLayout.value === "float") return false;
   // full width along the bottom: side by side, if both fit
   if (tourDrawerLayout.value === "bottom") {
-    return viewportWidth.value >= CONTROLS_SIDE_BY_SIDE_WIDTH;
+    return viewportWidth.value >= 800; // only on wide screens will we split the bottom panel
   }
   // 'push': a column of its own to split
   return true;
 });
+
 const controlsInInfoSheet = computed(() => {
   if (isMobile.value) return false;
   if (showTour.value) return tourWantsControls.value && tourDrawerLayout.value === "float";
@@ -724,6 +717,8 @@ watch([controlsInInfoSheet, tourStep], ([inSheet]) => {
   if (inSheet) infoSheetTab.value = SETTINGS_TAB;
   showInfoSheet.value = inSheet;
 });
+
+
 const showSearch = ref(false);
 // match on aid, iid or orig_id -- whichever the user happens to have on hand
 function filterAlmagalSource(_title: string, query: string, item?: { raw: ALMAGalSource }) {
@@ -829,11 +824,9 @@ watch(displaySpreadsheet, (display) => {
 /* Load WTMLS for different background layers.
    Don't forget to add them to `foregroundImageOptions` and the `foregroundImage` watcher!
 */
-// In principle we could use autoload: true. But it is useful to try to load things in order
-// newer GLIMPSE 360
 const glimpse = useWtmlLoader('./GLIMPSE_360.wtml', {autoload: false});
 
-// Start this disabled. Use herschelPacs.show() to show it. It has a black layer which
+// Start this disabled. Use herschelPacs.show() to show it. 
 const herschel = useWtmlLoader('./herschel_spire_rgb.wtml', {autoload: false, onLoad: (out) => {
   out.layer?.set_enabled(false);
 }});
@@ -847,13 +840,8 @@ const foregroundImageLoaded = computed(() => {
     return true; // "none" is always loaded
   }
 });
-/* WWT study images falling within 5' of an ALMAGAL source.
-   Only one is ever enabled: the collection piles many images onto the same few
-   star-forming complexes (fourteen of Carina alone), so showing them all at once
-   just stacks them on top of each other. Every layer therefore starts disabled
-   and `updateComparisonLayers` turns on the selected one (or all of them, if
-   the user asks for that).
-*/
+
+
 // const comparisons = reactive(useWtmlLoader('./almagal_sources_wwt_matches.wtml', {
 const comparisons = reactive(useWtmlLoader('./almagal_tour_images.wtml', {
   autoload: false,
