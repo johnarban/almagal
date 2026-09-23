@@ -14,7 +14,7 @@
           <h4>Source Filters</h4>
         </v-expansion-panel-title>
         <v-expansion-panel-text>
-          <div class="clump-type-filter">
+          <div v-if="!hideClumpType" class="clump-type-filter">
             <div class="clump-type-header">
               <span>Clump type</span><InfoButton
                 :show-tooltip="true"
@@ -72,7 +72,7 @@
           <fieldset
             class="almagal-filterset"
           >
-            <hr class="mt-5 mb-3" />
+            <hr v-if="!hideClumpType" class="mt-5 mb-3" />
             <div class="clump-type-header">
               Properties
             </div>
@@ -411,6 +411,7 @@ export interface ControlPanelProps {
   currentComparisonDescription?: string | null;
   comparisonsItemsInView?: {index: number, inView: boolean}[];
   hideSourceFilters?: boolean;
+  hideClumpType?: boolean;
   hideAlmagalImages?: boolean;
   hideBackgroundSurveys?: boolean;
   hideComparisonImages?: boolean;
@@ -427,6 +428,7 @@ const _props = withDefaults(defineProps<ControlPanelProps>(), {
   currentComparisonDescription: null,
   comparisonsItemsInView: () => [],
   hideSourceFilters: false,
+  hideClumpType: false,
   hideAlmagalImages: false,
   hideBackgroundSurveys: false,
   hideComparisonImages: false,

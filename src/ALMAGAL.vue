@@ -47,6 +47,7 @@
               :hide-almagal-images="tourStep !== 6"
               :disable-filters="disabledFilters"
               hide-disabled
+              hide-clump-type
               hide-background-surveys
               hide-comparison-images
             />
@@ -491,6 +492,7 @@
             :comparisons-items-in-view="comparisonsInView"
             :disable-filters="disabledFilters"
             hide-disabled
+            :hide-clump-type="showTour"
             @setup3d="setup3DView"
             @go-to-comparison="goToComparison"
             @step-comparison="stepComparison"
