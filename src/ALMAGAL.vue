@@ -876,7 +876,7 @@ const comparisionLocations = computed(() => comparisons.places.map(place => {
   };
 }));
 
-import { refDebounced} from "@vueuse/core";
+import { refThrottled} from "@vueuse/core";
 function pointInView(raDeg, decDeg) {
   const ctl = WWTControl.singleton;
   const rc = ctl.renderContext;
@@ -887,7 +887,7 @@ function pointInView(raDeg, decDeg) {
   );
 }
 // debounced ref to not recalculate on every move
-const wwtView = refDebounced(computed(() => [store.raRad, store.decRad, store.zoomDeg, store.rollRad]), 100);
+const wwtView = refThrottled(computed(() => [store.raRad, store.decRad, store.zoomDeg, store.rollRad]), 100);
 const comparisonsInView = computed(() => {
   if (!wwtView.value) return []; // we just need the computed to respond to the view change
   return comparisionLocations.value.map((loc, index) => {
