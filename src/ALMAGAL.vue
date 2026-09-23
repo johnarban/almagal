@@ -1901,6 +1901,7 @@ and remember, position:absolute is still a positioned parent, so children can be
   display: flex;
   flex-direction: column;
   overflow: hidden; // the step scrolls instead (TourPlayer.vue)
+  flex: 1 0 auto;
 }
 
 #tour-drawer .tour-sheet > .tour-player {
@@ -1912,7 +1913,7 @@ and remember, position:absolute is still a positioned parent, so children can be
 #tour-drawer .controls-sheet {
   flex: 0 1 auto;
   min-height: 0;
-  max-height: 60%;
+  // max-height: 50%;
   overflow-y: auto;
   color: #e6e6e6;
   background-color: rgba(0, 47, 92, 0.9);
