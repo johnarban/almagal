@@ -687,7 +687,7 @@ function showOrionImageset(index: number) {
 // shared look for the tour's canvas buttons
 const tourBtnProps = { color: "surface-variant" };
 // the steps that discuss the filters
-const CONTROL_PANEL_STEPS = [5, 6, 7, 8];
+const CONTROL_PANEL_STEPS = [6, 7, 8];
 const tourWantsControls = computed(() =>
   showTour.value && CONTROL_PANEL_STEPS.includes(tourStep.value));
 
