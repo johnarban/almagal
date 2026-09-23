@@ -79,6 +79,7 @@
             <!-- mass, lum, lm, tdust, dist_ag, tbol -->
             <div
               v-for="field in filterFields"
+              v-show="!(hideDisabled && disableFilters.includes(field))"
               :key="field"
               class="filter-slider"
             >
@@ -87,7 +88,11 @@
                   <!-- The hovered source's value is no longer read out
                       here: RangeNumberInputs shows it as a callout
                       over that source's marker on the track. -->
-                  <span v-html="filterFieldLabels[field]"></span>
+                  <span
+                    class="filter-field-label"
+                    :class="{ 'filter-field-label-disabled': disableFilters.includes(field) }"
+                    v-html="filterFieldLabels[field]"
+                  ></span>
                   <InfoButton
                     :help-text="filterFieldLabels[field]"
                     :show-tooltip="true"
@@ -101,6 +106,7 @@
                   :aria-label="filterFieldLabels[field]"
                   :fiducial="hoveredSource ? hoveredSource[field] : undefined"
                   :steps="500"
+                  :disabled="disableFilters.includes(field)"
                   log
                   @update:model-value="(val) => filterSpec.set(field, val)"
                 />
@@ -378,6 +384,7 @@ import {
   foregroundOpacity,
   hoveredSource,
   resetFitsImagesetSettings,
+  type FilterField,
 } from "../almagal_state";
 
 /* One prop per card, so hiding a card means you can skip its prop -- the
@@ -392,6 +399,10 @@ withDefaults(defineProps<{
   hideAlmagalImages?: boolean,
   hideBackgroundSurveys?: boolean,
   hideComparisonImages?: boolean,
+  /** filter fields whose slider (and label) are shown but greyed out */
+  disableFilters?: FilterField[],
+  /** hide a disabled field's row entirely, instead of greying it out */
+  hideDisabled?: boolean,
 }>(), {
   almagalWtml: () => ({ loaded: false, imagesetLayers: [] }),
   foregroundImageLoaded: false,
@@ -401,6 +412,8 @@ withDefaults(defineProps<{
   hideAlmagalImages: false,
   hideBackgroundSurveys: false,
   hideComparisonImages: false,
+  disableFilters: () => [],
+  hideDisabled: false,
 });
 
 const emit = defineEmits<{
@@ -679,6 +692,12 @@ const { in3D: in3dView } = useWwt3dControl(store);
   color: var(--panel-label);
   font-size: var(--panel-font-body);
   font-weight: 400;
+}
+
+// A field disabled via disableFilters: the slider below is already greyed
+// out on its own (RangeNumberInputs' :disabled), this just matches the label.
+.settings-page .filter-field-label-disabled {
+  color: var(--panel-muted);
 }
 
 // Numeric readouts: the value it is set to. Tabular figures stop the numbers

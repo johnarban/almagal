@@ -45,6 +45,8 @@
             <ControlPanel
               :almagal-wtml="almagalWtml"
               :hide-almagal-images="tourStep !== 6"
+              :disable-filters="tourDisabledFilters"
+              hide-disabled
               hide-background-surveys
               hide-comparison-images
             />
@@ -688,6 +690,11 @@ const tourBtnProps = { color: "surface-variant" };
 const CONTROL_PANEL_STEPS = [5, 6, 7, 8];
 const tourWantsControls = computed(() =>
   showTour.value && CONTROL_PANEL_STEPS.includes(tourStep.value));
+
+// step 6 (TourStep3b) only want L,M, L/M
+const TOUR_STEP_6_HIDDEN_FILTERS: FilterField[] = ["tdust", "dist_ag"];
+const tourDisabledFilters = computed<FilterField[]>(() =>
+  tourStep.value === 6 ? TOUR_STEP_6_HIDDEN_FILTERS : []);
 
 // below this the bottom strip cannot fit the tour and the panel side by side
 const CONTROLS_SIDE_BY_SIDE_WIDTH = 800;
