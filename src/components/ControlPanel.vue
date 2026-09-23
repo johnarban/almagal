@@ -119,7 +119,7 @@
         v-if="!hideAlmagalImages"
         value="imageset-settings"
         class="mb-2"
-        :disabled="!almagalWtml.loaded"
+        :disabled="!almagalWtml?.loaded"
       >
         <TwoLevelExpansionPanelTitle class="ga-1">
           <template #title>
@@ -127,7 +127,7 @@
           </template>
           <template #bottom>
             <ImagesetOpacity
-              v-for="layer in almagalWtml.imagesetLayers"
+              v-for="layer in almagalWtml?.imagesetLayers"
               :key="layer.id.toString()"
               :imageset="store.imagesetStateForLayer(layer.id.toString())!"
             >
@@ -150,7 +150,7 @@
           <div class="d-flex flex-column ga-6">
             <!-- note - the sliders are logarithmic even if the stretch is not -->
             <ImagesetStretch
-              v-for="layer in almagalWtml.imagesetLayers"
+              v-for="layer in almagalWtml?.imagesetLayers"
               :key="layer.id.toString()"
               :imageset="store.imagesetStateForLayer(layer.id.toString())!"
               log-stretch-slider
@@ -158,7 +158,7 @@
               :crange="{min: -0.001, max: 1}"
             />
             <ImagesetColormap
-              v-for="layer in almagalWtml.imagesetLayers"
+              v-for="layer in almagalWtml?.imagesetLayers"
               :key="layer.id.toString()"
               :imageset="store.imagesetStateForLayer(layer.id.toString())!"
             >
@@ -177,7 +177,7 @@
               </template>
             </ImagesetColormap>
             <v-btn
-              v-for="layer in almagalWtml.imagesetLayers"
+              v-for="layer in almagalWtml?.imagesetLayers"
               :key="layer.id.toString()"
               variant="outlined"
               @click="() => resetFitsImagesetSettings(layer)"
@@ -284,13 +284,28 @@
               :items="comparisonItems"
               item-title="label"
               item-value="value"
-              hide-details
+              persistent-hint
+              :hint="comparisonAvailableHint"
               density="compact"
               variant="outlined"
               clearable
               label="Comparison image"
               @update:model-value="(v) => emit('goToComparison', v)"
-            />
+            >
+              <template #item="{index, props}">
+                <v-list-item v-bind="props">
+                  <template #title>
+                    {{ comparisonItems[index].label }}
+                  </template>
+                  <template #prepend>
+                    <span 
+                      class="item-in-view"
+                      :class="{'in-view': comparisonsItemsInView.find(item => item.index === comparisonItems[index].value)?.inView }"
+                    ></span>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
             <!-- One segmented control rather than four loose icons.
                 The two toggles carry an active color, so "hidden" and
                 "showing all" are legible without hovering. -->
@@ -355,8 +370,8 @@ export const settingsPanels = ref<string[]>([]);
 
 <script setup lang="ts">
 import { engineStore } from "@wwtelescope/engine-pinia";
-import type { ImageSetLayer } from "@wwtelescope/engine";
-
+import type { UnwrapNestedRefs } from "vue";
+import { computed } from 'vue';
 import InfoButton from "./InfoButton.vue";
 import RangeNumberInputs from "./RangeNumberInputs.vue";
 import TwoLevelExpansionPanelTitle from "./TwoLevelExpansionPanelTitle.vue";
@@ -366,6 +381,7 @@ import ImagesetColormap from "./imageset_settings/ImagesetColormap.vue";
 import ImagesetStretch from "./imageset_settings/ImagesetStretch.vue";
 
 import { useWwt3dControl } from "../composables/wwt3dControl";
+import type { useWtmlLoader } from "../composables/useWtmlLoader";
 import {
   CLUMP_TYPES,
   almagalColumnRanges,
@@ -387,27 +403,29 @@ import {
   type FilterField,
 } from "../almagal_state";
 
+
+export interface ControlPanelProps {
+  almagalWtml?: UnwrapNestedRefs<ReturnType<typeof useWtmlLoader>>;
+  foregroundImageLoaded?: boolean;
+  comparisonItems?: { label: string, value: number }[];
+  currentComparisonDescription?: string | null;
+  comparisonsItemsInView?: {index: number, inView: boolean}[];
+  hideSourceFilters?: boolean;
+  hideAlmagalImages?: boolean;
+  hideBackgroundSurveys?: boolean;
+  hideComparisonImages?: boolean;
+  disableFilters?: FilterField[];
+  hideDisabled?: boolean;
+}
+
 /* One prop per card, so hiding a card means you can skip its prop -- the
    filters need none. Un-hide one without its prop and you get an empty card. */
-withDefaults(defineProps<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  almagalWtml?: { loaded: boolean, imagesetLayers: ImageSetLayer[] } & Record<string, any>,
-  foregroundImageLoaded?: boolean,
-  comparisonItems?: { label: string, value: number }[],
-  currentComparisonDescription?: string | null,
-  hideSourceFilters?: boolean,
-  hideAlmagalImages?: boolean,
-  hideBackgroundSurveys?: boolean,
-  hideComparisonImages?: boolean,
-  /** filter fields whose slider (and label) are shown but greyed out */
-  disableFilters?: FilterField[],
-  /** hide a disabled field's row entirely, instead of greying it out */
-  hideDisabled?: boolean,
-}>(), {
-  almagalWtml: () => ({ loaded: false, imagesetLayers: [] }),
+const _props = withDefaults(defineProps<ControlPanelProps>(), {
+  almagalWtml: undefined,
   foregroundImageLoaded: false,
   comparisonItems: () => [],
   currentComparisonDescription: null,
+  comparisonsItemsInView: () => [],
   hideSourceFilters: false,
   hideAlmagalImages: false,
   hideBackgroundSurveys: false,
@@ -424,6 +442,19 @@ const emit = defineEmits<{
 
 const store = engineStore();
 const { in3D: in3dView } = useWwt3dControl(store);
+
+
+const anyComparisonVisible = computed(() => {
+  return _props.comparisonsItemsInView.some(item => item.inView);
+});
+
+const comparisonAvailableHint = computed(() => {
+  if (anyComparisonVisible.value) {
+    return "Some images are visible in the current view";
+  } else {
+    return "No images are visible in the current view";
+  }
+});
 </script>
 
 <!-- unscoped: these reach into Vuetify and RangeNumberInputs internals -->
@@ -815,5 +846,16 @@ const { in3D: in3dView } = useWwt3dControl(store);
   padding: 3px 9px;
   margin-right: 12px;
   cursor: pointer;
+}
+
+.item-in-view {
+  display: inline;
+  background-color: red;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+}
+.item-in-view.in-view {
+  background-color: limegreen;
 }
 </style>

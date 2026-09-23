@@ -454,6 +454,7 @@
             :foreground-image-loaded="foregroundImageLoaded"
             :comparison-items="comparisonItems"
             :current-comparison-description="currentComparisonDescription"
+            :comparisons-items-in-view="comparisonsInView"
             @setup3d="setup3DView"
             @go-to-comparison="goToComparison"
             @step-comparison="stepComparison"
@@ -864,6 +865,35 @@ const currentComparisonDescription = computed(() => {
   // Most entries only carry a description on the imageset (or none at all, just credits).
   const imageset = place.get_studyImageset() ?? place.get_backgroundImageset();
   return place.htmlDescription || imageset?.get_creditsText() || null;
+});
+
+const comparisionLocations = computed(() => comparisons.places.map(place => {
+  const imageset = place.get_studyImageset() ?? place.get_backgroundImageset();
+  if (!imageset) return null;
+  return {
+    ra: imageset.get_centerX(), // deg
+    dec: imageset.get_centerY(),  // deg
+  };
+}));
+
+import { refDebounced} from "@vueuse/core";
+function pointInView(raDeg, decDeg) {
+  const ctl = WWTControl.singleton;
+  const rc = ctl.renderContext;
+  const pt = ctl.getScreenPointForCoordinates(raDeg / 15, decDeg);
+  return (
+    pt.x >= 0 && pt.x < rc.width 
+    && pt.y >= 0 && pt.y < rc.height
+  );
+}
+// debounced ref to not recalculate on every move
+const wwtView = refDebounced(computed(() => [store.raRad, store.decRad, store.zoomDeg, store.rollRad]), 100);
+const comparisonsInView = computed(() => {
+  if (!wwtView.value) return []; // we just need the computed to respond to the view change
+  return comparisionLocations.value.map((loc, index) => {
+    if (!loc) return {index: index, inView: false};
+    return {index: index, inView: pointInView(loc.ra, loc.dec)};
+  });
 });
 
 /** Enable the comparison layers that should be showing. */
