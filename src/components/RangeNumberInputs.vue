@@ -132,8 +132,8 @@ const sliderMax = computed(() => transform(props.max));
 
 const steps = computed(() => props.steps ?? 100);
 function toIndex(v: number): number {
-  // math.round just cleans up floating point errors at the ends, the index must be an int.
-  return Math.round(transform(v) - sliderMin.value) / (sliderMax.value - sliderMin.value) * steps.value;
+  // we need to round the floating point index to an int
+  return Math.round((transform(v) - sliderMin.value) / (sliderMax.value - sliderMin.value) * steps.value);
 }
 function fromIndex(i: number): number {
   if (i <= 0) return props.min;
